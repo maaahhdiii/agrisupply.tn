@@ -61,30 +61,6 @@ async function resetProducts() {
         stock_available: true
       },
       {
-        name_ar: 'طماطم طازجة',
-        name_fr: 'Tomates Fraîches',
-        description_ar: 'طماطم طازجة من المزرعة',
-        description_fr: 'Tomates fraîches de la ferme',
-        price: 8.00,
-        unit_ar: '1 كغ',
-        unit_fr: '1 kg',
-        image_url: 'https://images.unsplash.com/photo-1592841657303-869f76646f0c?w=400&h=400&fit=crop',
-        category: 'légumes',
-        stock_available: true
-      },
-      {
-        name_ar: 'كوسة طازجة',
-        name_fr: 'Courgette',
-        description_ar: 'كوسة طازجة من الحقول',
-        description_fr: 'Courgette fraîche des champs',
-        price: 12.00,
-        unit_ar: '1 كغ',
-        unit_fr: '1 kg',
-        image_url: 'https://images.unsplash.com/photo-1633128486319-b07df9b5d8b8?w=400&h=400&fit=crop',
-        category: 'légumes',
-        stock_available: true
-      },
-      {
         name_ar: 'بطاطا',
         name_fr: 'Pommes de terre',
         description_ar: 'بطاطا صالحة للقلي والطبخ',

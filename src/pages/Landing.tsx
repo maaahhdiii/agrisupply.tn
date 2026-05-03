@@ -6,12 +6,6 @@ import { useCartStore } from '../store/cartStore'
 
 const productsPreview = [
   {
-    name: 'Tomates طماطم',
-    price: '8.000 TND',
-    unit: 'carton/كرتون',
-    img: 'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=300',
-  },
-  {
     name: 'Oranges برتقال',
     price: '20.000 TND',
     unit: 'carton/كرتون',

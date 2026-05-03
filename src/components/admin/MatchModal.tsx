@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { TUNISIAN_GOVERNORATES } from '../../types/farmer'
 import type { MatchResult, OrderMatch } from '../../types/farmer'
@@ -6,7 +6,15 @@ import { findMatchesForOrder, autoMatchOrder } from '../../lib/matchingEngine'
 import Button from '../ui/Button'
 
 interface MatchModalProps {
-  order: any // any for now because we need order_items
+  order: {
+    id: string
+    customer_name: string
+    customer_phone: string
+    delivery_governorate?: string
+    total_amount: number
+    required_quantity_kg?: number
+    order_items?: Array<{ product_id: string; quantity: number; product?: { name_fr?: string; name_ar?: string } }>
+  }
   isOpen: boolean
   onClose: () => void
   onMatchCreated: () => void
@@ -14,13 +22,12 @@ interface MatchModalProps {
 
 export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: MatchModalProps) {
   const [gov, setGov] = useState(order.delivery_governorate || 'Tunis')
-  const [productId, setProductId] = useState('')
-  const [requiredKg, setRequiredKg] = useState(order.required_quantity_kg || 0)
-  
+  const [productId, setProductId] = useState(order.order_items?.[0]?.product_id || '')
+  const [requiredKg, setRequiredKg] = useState(order.required_quantity_kg || order.order_items?.[0]?.quantity || 0)
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<MatchResult[]>([])
   const [matches, setMatches] = useState<OrderMatch[]>([])
-  
+
   const orderItems = order.order_items || []
 
   useEffect(() => {
@@ -30,21 +37,19 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
         setProductId(orderItems[0].product_id)
       }
     }
-  }, [isOpen, order])
+  }, [isOpen, orderItems, productId])
 
   const fetchCurrentMatches = async () => {
     const { data } = await supabase
       .from('order_matches')
-      .select(`
-        *,
-        farmer:farmers(*),
-        farmer_crop:farmer_crops(*)
-      `)
+      .select('*, farmer:farmers(*), farmer_crop:farmer_crops(*, product:products(*))')
       .eq('order_id', order.id)
-    if (data) setMatches(data as any)
+
+    if (data) setMatches(data as OrderMatch[])
   }
 
   const handleSearch = async () => {
+    if (!productId) return
     setSearching(true)
     const res = await findMatchesForOrder(productId, Number(requiredKg), gov)
     setResults(res)
@@ -52,6 +57,7 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
   }
 
   const handleAutoMatch = async () => {
+    if (!orderItems.length) return
     setSearching(true)
     for (const item of orderItems) {
       await autoMatchOrder(order.id, item.product_id, Number(item.quantity) || 10, gov)
@@ -70,12 +76,12 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
       matched_quantity_kg: assignKg,
       status: 'proposed',
       match_score: result.match_score,
-      distance_km: result.distance_km
+      distance_km: result.distance_km,
     })
     await fetchCurrentMatches()
     onMatchCreated()
   }
-  
+
   const handleRemoveMatch = async (matchId: string) => {
     await supabase.from('order_matches').delete().eq('id', matchId)
     await fetchCurrentMatches()
@@ -95,7 +101,7 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-[#2E7D32]">🔗 Matcher la commande #{order.id.slice(0,8)}</h2>
+          <h2 className="text-xl font-bold text-[#2E7D32]">🔗 Matcher la commande #{order.id.slice(0, 8)}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-black">✕</button>
         </div>
 
@@ -105,7 +111,7 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
           <p><strong>Total:</strong> {order.total_amount} TND</p>
         </div>
 
-        <div className="flex gap-4 mb-6 items-end flex-wrap">
+        <div className="flex flex-wrap gap-4 mb-6 items-end">
           <div>
             <label className="block text-sm font-semibold mb-1">Livraison</label>
             <select value={gov} onChange={e => setGov(e.target.value)} className="border rounded-md px-3 py-2">
@@ -115,10 +121,12 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
           <div>
             <label className="block text-sm font-semibold mb-1">Produit</label>
             <select value={productId} onChange={e => setProductId(e.target.value)} className="border rounded-md px-3 py-2">
-              {orderItems.map((item: any) => (
-                <option key={item.product_id} value={item.product_id}>{item.products?.name_fr || item.product_id}</option>
+              {orderItems.map(item => (
+                <option key={item.product_id} value={item.product_id}>
+                  {item.product?.name_fr || item.product?.name_ar || item.product_id}
+                </option>
               ))}
-              {orderItems.length === 0 && <option value="">No items found</option>}
+              {!orderItems.length && <option value="">Aucun produit</option>}
             </select>
           </div>
           <div>
@@ -126,7 +134,7 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
             <input type="number" value={requiredKg} onChange={e => setRequiredKg(Number(e.target.value))} className="border rounded-md px-3 py-2 w-24" />
           </div>
           <Button onClick={handleSearch} disabled={searching || !productId}>🔍 Rechercher</Button>
-          <Button onClick={handleAutoMatch} disabled={searching || orderItems.length === 0}>⚡ Auto-matcher</Button>
+          <Button onClick={handleAutoMatch} disabled={searching || !orderItems.length}>⚡ Auto-matcher</Button>
         </div>
 
         {searching && <div className="text-center py-4">Recherche en cours...</div>}
@@ -146,22 +154,16 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
                 </tr>
               </thead>
               <tbody>
-                {results.map((r, i) => (
-                  <tr key={i} className="border-b">
+                {results.map((r, index) => (
+                  <tr key={index} className="border-b">
                     <td className="p-2">{r.farmer.name} <br/><span className="text-xs text-gray-500">{r.farmer.phone}</span></td>
                     <td className="p-2">{r.farmer.region}</td>
                     <td className="p-2">{r.available_kg}</td>
                     <td className="p-2">{r.crop.harvest_date || 'N/A'}</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-1 rounded-full text-xs border ${getScoreColor(r.match_score)}`}>
-                        {r.match_score}
-                      </span>
-                    </td>
+                    <td className="p-2"><span className={`px-2 py-1 rounded-full text-xs border ${getScoreColor(r.match_score)}`}>{r.match_score}</span></td>
                     <td className="p-2">{r.distance_km} km</td>
                     <td className="p-2">
-                      <button onClick={() => handleAssign(r)} className="bg-[#2E7D32] text-white px-3 py-1 rounded-md text-xs hover:bg-green-700">
-                        ✓ Assigner
-                      </button>
+                      <button onClick={() => handleAssign(r)} className="bg-[#2E7D32] text-white px-3 py-1 rounded-md text-xs hover:bg-green-700">✓ Assigner</button>
                     </td>
                   </tr>
                 ))}
@@ -172,21 +174,22 @@ export default function MatchModal({ order, isOpen, onClose, onMatchCreated }: M
 
         <div className="border-t pt-6">
           <h3 className="font-bold mb-4">Correspondances actuelles</h3>
-          {matches.length === 0 ? <p className="text-gray-500 text-sm">Aucune correspondance pour le moment.</p> : (
+          {matches.length === 0 ? (
+            <p className="text-gray-500 text-sm">Aucune correspondance pour le moment.</p>
+          ) : (
             <div className="space-y-2">
-              {matches.map(m => (
-                <div key={m.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
+              {matches.map(match => (
+                <div key={match.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
                   <div>
-                    <span className="font-semibold">{m.farmer?.name}</span> - {m.matched_quantity_kg} kg
-                    <span className="ml-3 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{m.status}</span>
+                    <span className="font-semibold">{match.farmer?.name}</span> - {match.matched_quantity_kg} kg
+                    <span className="ml-3 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{match.status}</span>
                   </div>
-                  <button onClick={() => handleRemoveMatch(m.id)} className="text-red-500 hover:text-red-700 text-sm">Retirer</button>
+                  <button onClick={() => handleRemoveMatch(match.id)} className="text-red-500 hover:text-red-700 text-sm">Retirer</button>
                 </div>
               ))}
             </div>
           )}
         </div>
-
       </div>
     </div>
   )

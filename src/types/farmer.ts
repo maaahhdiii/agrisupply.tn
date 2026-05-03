@@ -12,6 +12,8 @@ export interface Farmer {
   farmer_crops?: FarmerCrop[]
 }
 
+import type { Order } from './index'
+
 export interface FarmerCrop {
   id: string
   farmer_id: string
@@ -46,6 +48,7 @@ export interface OrderMatch {
   created_at: string
   farmer?: Farmer
   farmer_crop?: FarmerCrop
+  order?: Order
 }
 
 export interface MatchResult {
