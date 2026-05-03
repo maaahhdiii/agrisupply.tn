@@ -1,0 +1,10 @@
+{
+  "nav": { "home": "Accueil", "cart": "Panier", "orders": "Mes commandes" },
+  "home": { "title": "Marché AgriSupply", "subtitle": "Produits frais directement des fermes" },
+  "product": { "add": "Ajouter", "unit": "unité", "outOfStock": "Rupture de stock" },
+  "cart": { "title": "Panier", "empty": "Le panier est vide", "total": "Total", "checkout": "Passer la commande", "delivery": "Frais de livraison", "remove": "Supprimer" },
+  "checkout": { "title": "Confirmer la commande", "name": "Nom complet", "phone": "Numéro de téléphone", "address": "Adresse", "notes": "Remarques", "deliveryDate": "Date de livraison", "submit": "Confirmer la commande", "cod": "Paiement à la livraison", "success": "Votre commande a été envoyée avec succès !" },
+  "schedule": { "title": "Planifier la commande", "oneTime": "Commande unique", "recurring": "Commande récurrente", "weekly": "Hebdomadaire", "monthly": "Mensuel", "dayOfWeek": "Jour de la semaine", "dayOfMonth": "Jour du mois", "nextDelivery": "Prochaine livraison", "days": ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"] },
+  "orders": { "title": "Mes commandes", "noOrders": "Aucune commande", "status": { "pending": "En attente", "confirmed": "Confirmé", "delivered": "Livré", "cancelled": "Annulé" } },
+  "admin": { "title": "Panneau d'administration", "orders": "Commandes", "products": "Produits", "schedules": "Planifications", "confirm": "Confirmer", "deliver": "Livrer", "cancel": "Annuler", "password": "Mot de passe", "login": "Connexion" }
+}

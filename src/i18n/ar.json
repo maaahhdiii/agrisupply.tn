@@ -1,0 +1,10 @@
+{
+  "nav": { "home": "الرئيسية", "cart": "السلة", "orders": "طلباتي" },
+  "home": { "title": "سوق أغري سبلاي", "subtitle": "منتجات طازجة مباشرة من المزارع" },
+  "product": { "add": "إضافة", "unit": "وحدة", "outOfStock": "غير متوفر" },
+  "cart": { "title": "سلة التسوق", "empty": "السلة فارغة", "total": "المجموع", "checkout": "إتمام الطلب", "delivery": "رسوم التوصيل", "remove": "حذف" },
+  "checkout": { "title": "تأكيد الطلب", "name": "الاسم الكامل", "phone": "رقم الهاتف", "address": "العنوان", "notes": "ملاحظات", "deliveryDate": "تاريخ التسليم", "submit": "تأكيد الطلب", "cod": "الدفع عند التسليم", "success": "تم إرسال طلبك بنجاح!" },
+  "schedule": { "title": "جدولة الطلب", "oneTime": "طلب مرة واحدة", "recurring": "طلب متكرر", "weekly": "أسبوعي", "monthly": "شهري", "dayOfWeek": "يوم الأسبوع", "dayOfMonth": "يوم الشهر", "nextDelivery": "التسليم القادم", "days": ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"] },
+  "orders": { "title": "طلباتي", "noOrders": "لا توجد طلبات", "status": { "pending": "قيد الانتظار", "confirmed": "مؤكد", "delivered": "تم التسليم", "cancelled": "ملغي" } },
+  "admin": { "title": "لوحة الإدارة", "orders": "الطلبات", "products": "المنتجات", "schedules": "الجداول", "confirm": "تأكيد", "deliver": "تسليم", "cancel": "إلغاء", "password": "كلمة المرور", "login": "دخول" }
+}
